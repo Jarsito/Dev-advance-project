@@ -1,120 +1,111 @@
-import tkinter as tk
-from tkinter import messagebox
-from PIL import Image, ImageTk  # Para manejar imágenes PNG
+import pygame
+import sys
+import os
 
-# Función para mostrar los diálogos cinemáticos
-def show_dialog(dialogs, current=0):
-    if current < len(dialogs):
-        dialog_label.config(text=dialogs[current])  # Actualizar el texto del diálogo
-        window.after(5000, lambda: show_dialog(dialogs, current + 1))  # Muestra el siguiente diálogo cada 5 segundos
+# Inicializar Pygame
+pygame.init()
 
-# Función para confirmar si se desea empezar en modo Easy
-def confirm_easy_mode():
-    response = messagebox.askyesno("Confirmar", "¿Quieres empezar en este modo?")
-    if response:
-        messagebox.showinfo("Catherine", "Venga, relájate y disfruta de la extraña historia de 'Catherine'.")
-        start_cinematic_1()  # Inicia los diálogos cinematográficos
+# Configuración de la ventana
+ANCHO, ALTO = 800, 600
+pantalla = pygame.display.set_mode((ANCHO, ALTO))
+pygame.display.set_caption("Catherine: El Juego")
+
+# Cargar imagen de fondo
+ruta_imagen_fondo = "C:/Users/USER/Desktop/Nueva carpeta/Catherine-Full-Body_Header1.png"
+if not os.path.isfile(ruta_imagen_fondo):
+    print(f"Error: No se pudo cargar la imagen de fondo en {ruta_imagen_fondo}")
+    sys.exit()
+
+imagen_fondo = pygame.image.load(ruta_imagen_fondo)
+imagen_fondo = pygame.transform.scale(imagen_fondo, (ANCHO, ALTO))
+
+# Fuentes y colores
+fuente_titulo = pygame.font.SysFont("Georgia", 40, bold=True)
+fuente_boton = pygame.font.SysFont("Georgia", 28)
+color_texto = (255, 255, 255)
+color_fondo = (51, 51, 51)
+color_hover = (255, 255, 255)
+color_boton_normal = (0, 51, 102)
+color_boton_hover = (0, 76, 153)
+
+# Función para dibujar botones redondeados con efecto hover
+def dibujar_boton(texto, x, y, ancho, alto, color_fondo, color_hover, funcion):
+    mouse = pygame.mouse.get_pos()
+    click = pygame.mouse.get_pressed()
+
+    # Verificar si el mouse está sobre el botón
+    if x < mouse[0] < x + ancho and y < mouse[1] < y + alto:
+        pygame.draw.rect(pantalla, color_hover, (x, y, ancho, alto), border_radius=10)
+        if click[0] == 1:
+            funcion()
     else:
-        show_main_menu()  # Regresa al menú principal si no confirma
+        pygame.draw.rect(pantalla, color_fondo, (x, y, ancho, alto), border_radius=10)
 
-# Cinemática 1: Introducción de Trisha
-def start_cinematic_1():
-    dialogs = [
-        "El mundo entero es un teatro; y todos los hombres y mujeres simplemente comediantes.\nShakespeare (Como gustéis)",
-        "Trisha: Cuando el cielo nocturno se carga de glamour ¡es porque te aguarda una bonita historia!",
-        "Trisha: Buenas noches. Bienvenidos a Golden Playhouse.",
-        "Trisha: Yo seré vuestra guía esta noche: Trisha; 'la Venus de Medianoche'.",
-        "Trisha: ¿Habéis oído ese rumor tan tétrico?",
-        "Trisha: Dicen que si te caes durante un sueño y no te despiertas antes de aterrizar...",
-        "Trisha: ... ¡mueres en la vida real!",
-        "Trisha: La historia de esta noche es 'Catherine', una historia de terror romántico poco convencional.",
-        "Trisha: Un hombre con cierto 'hechizo' está pasando una semana terrible.",
-        "Trisha: El héroe de esta historia es Vincent Brooks, de 32 años.",
-        "Trisha: Es un tipo formal y amable...",
-        "Trisha: Pero un día, empieza a tener pesadillas horrorosas.",
-        "Trisha: Además, se le viene encima una ola de dulce seducción...",
-        "Trisha: ¡Qué juguetón! ¿verdad?",
-        "Trisha: ¿Será capaz de superar todos los 'bloques' de su vida?",
-        "Trisha: ¡Todo depende de vosotros, espectadores!",
-        "Trisha: ¡Perdonad que os mantenga en vilo! ¡Arriba el telón!",
-        "Trisha: Y ahora, ¡a disfrutar del show! Hasta que nos volvamos a encontrar..."
-    ]
-    clear_screen()  # Limpia la pantalla antes de mostrar los diálogos
-    
-    # Crear la etiqueta para los diálogos si no existe ya
-    global dialog_label
-    dialog_label = tk.Label(window, text="", font=("Arial", 12), wraplength=500, justify="center", bg="#333333", fg="white")
-    canvas.create_window(400, 300, window=dialog_label)  # Colocar la etiqueta de diálogos en el canvas
-    
-    show_dialog(dialogs)  # Comienza a mostrar los diálogos
+    # Dibujar el texto del botón
+    texto_boton = fuente_boton.render(texto, True, color_texto)
+    pantalla.blit(texto_boton, (x + (ancho - texto_boton.get_width()) // 2, y + (alto - texto_boton.get_height()) // 2))
 
-# Menú principal del juego para elegir la dificultad
+# Función para mostrar el menú principal con botones de dificultad
 def show_main_menu():
-    clear_screen()
+    pantalla.fill(color_fondo)
+    draw_text("Elige tu dificultad:", fuente_titulo, color_texto, pantalla, ANCHO // 2, 100)
 
-    # Crear una etiqueta que diga "Elige tu dificultad" dentro del canvas
-    label = tk.Label(window, text="Elige tu dificultad:", font=("Arial", 14), bg="#333333", fg="white")
-    canvas.create_window(400, 100, window=label)  # Colocar el label en el canvas
+    # Dibujar los botones con estilos mejorados
+    dibujar_boton("Easy", 300, 250, 200, 60, color_boton_normal, color_boton_hover, lambda: seleccionar_dificultad("Easy"))
+    dibujar_boton("Normal", 300, 350, 200, 60, color_boton_normal, color_boton_hover, lambda: seleccionar_dificultad("Normal"))
+    dibujar_boton("Hard", 300, 450, 200, 60, color_boton_normal, color_boton_hover, lambda: seleccionar_dificultad("Hard"))
 
-    # Crear botones sobre el canvas
-    easy_button = tk.Button(window, text="Easy", command=confirm_easy_mode, bg="#ff9999", fg="black", font=("Arial", 12, "bold"))
-    normal_button = tk.Button(window, text="Normal", command=lambda: messagebox.showinfo("Catherine", "Modo Normal seleccionado."), bg="#ffcc66", font=("Arial", 12, "bold"))
-    hard_button = tk.Button(window, text="Hard", command=lambda: messagebox.showinfo("Catherine", "Modo Hard seleccionado."), bg="#ff6666", font=("Arial", 12, "bold"))
+    pygame.display.flip()
 
-    # Posicionar los botones dentro del canvas
-    canvas.create_window(400, 200, window=easy_button)  # Botón en el centro del canvas
-    canvas.create_window(400, 250, window=normal_button)  # Botón debajo
-    canvas.create_window(400, 300, window=hard_button)  # Botón debajo
+    # Bucle de eventos del menú
+    while True:
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
 
-# Función para limpiar la pantalla antes de cambiar la interfaz
-def clear_screen():
-    canvas.delete("all")  # Borra todo lo que hay en el canvas
+# Función para seleccionar la dificultad
+def seleccionar_dificultad(dificultad):
+    pantalla.fill(color_fondo)
+    draw_text(f"Has seleccionado el modo {dificultad}", fuente_boton, color_texto, pantalla, ANCHO // 2, ALTO // 2)
+    pygame.display.flip()
+    pygame.time.delay(2000)
+    show_start_screen()  # Volver a la pantalla de inicio
 
-# Pantalla de inicio avanzada
+# Función para dibujar texto centrado
+def draw_text(text, font, color, surface, x, y):
+    texto = font.render(text, True, color)
+    rect = texto.get_rect(center=(x, y))
+    surface.blit(texto, rect)
+
+# Mostrar la pantalla de inicio con un fondo elegante
 def show_start_screen():
-    clear_screen()
+    pantalla.blit(imagen_fondo, (0, 0))
 
-    # Título del juego
-    title_label = tk.Label(window, text="Catherine: El Juego", font=("Courier", 30, "bold"), fg="white", bg="#333333")
-    canvas.create_window(400, 150, window=title_label)  # Posiciona el título
+    # Crear un fondo difuminado para el texto
+    overlay = pygame.Surface((ANCHO, ALTO))
+    overlay.set_alpha(200)  # Transparencia del fondo
+    overlay.fill((0, 0, 0))  # Fondo negro con transparencia
+    pantalla.blit(overlay, (0, 0))
 
-    # Botón de "Comenzar juego"
-    start_button = tk.Button(window, text="Comenzar juego", command=show_main_menu, bg="#00cc66", fg="white", font=("Arial", 16, "bold"), activebackground="#00b359", activeforeground="white")
-    canvas.create_window(400, 250, window=start_button)  # Botón centrado en el canvas
+    draw_text("Catherine: El Juego", fuente_titulo, color_texto, pantalla, ANCHO // 2, 150)
+    draw_text("Presiona cualquier tecla para comenzar", fuente_boton, color_texto, pantalla, ANCHO // 2, 300)
+    pygame.display.flip()
 
-    # Efecto hover para el botón
-    def on_enter(e):
-        start_button.config(bg="#00e673")
+    # Esperar a que el usuario presione una tecla
+    esperar_tecla()
 
-    def on_leave(e):
-        start_button.config(bg="#00cc66")
+# Función para esperar a que el usuario presione una tecla
+def esperar_tecla():
+    esperando = True
+    while esperando:
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if evento.type == pygame.KEYDOWN:
+                esperando = False
+                show_main_menu()
 
-    start_button.bind("<Enter>", on_enter)
-    start_button.bind("<Leave>", on_leave)
-
-    # Cargar imagen con Pillow
-    try:
-        image = Image.open("C:/Users/USER/Desktop/Nueva carpeta/Catherine-Full-Body_Header1.png")
-        background_img = ImageTk.PhotoImage(image)
-        canvas.create_image(0, 0, image=background_img, anchor="nw")  # Dibuja la imagen en el canvas
-
-        # Mantener la referencia de la imagen
-        window.background_img = background_img
-    except Exception as e:
-        messagebox.showerror("Error", f"No se pudo cargar la imagen: {e}")
-
-# Configuración básica de la ventana de Tkinter
-window = tk.Tk()
-window.title("Catherine: El Juego")
-window.geometry("800x600")
-window.config(bg="#333333")
-
-# Crear un Canvas para manejar la imagen de fondo y los botones
-canvas = tk.Canvas(window, width=800, height=600)
-canvas.pack(fill="both", expand=True)  # El canvas ocupa todo el espacio de la ventana
-
-# Mostrar pantalla de inicio avanzada
+# Pantalla de inicio
 show_start_screen()
-
-# Iniciar la interfaz
-window.mainloop()
