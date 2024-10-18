@@ -15,10 +15,10 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
 # Carga de imágenes
-vincent_image = pygame.image.load("vincent.png/vincent.png")
-monstruo_image = pygame.image.load("monstruo.png/monstruo.png")
-bala_image = pygame.image.load("bala.png/bala.png")
-vincent_victory_image = pygame.image.load("vincent_victory.png/vincent_victory.png")
+vincent_image = pygame.image.load("C:/Users/USER/Documents/GitHub/Dev-advance-project/imagenes/vincent.png")
+monstruo_image = pygame.image.load("C:/Users/USER/Documents/GitHub/Dev-advance-project/imagenes/monstruo.png")
+bala_image = pygame.image.load("C:/Users/USER/Documents/GitHub/Dev-advance-project/imagenes/bala.png")
+vincent_victory_image = pygame.image.load("C:/Users/USER/Documents/GitHub/Dev-advance-project/imagenes/vincent_victory.png")
 
 # Escalar la imagen de los enemigos
 monstruo_image = pygame.transform.scale(monstruo_image, (int(monstruo_image.get_width() * 0.8), int(monstruo_image.get_height() * 0.8)))
